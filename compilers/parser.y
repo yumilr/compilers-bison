@@ -10,7 +10,6 @@
 
 %define api.parser.class {Parser}
 %define api.namespace {utec::compilers}
-%define api.value.type variant
 %parse-param {FlexScanner* scanner} {int* result}
 
 %code requires
@@ -26,41 +25,64 @@
     #define yylex(x) scanner->lex(x)
 }
 
-%start	input 
+%union{
+    std::string* op_val;
+    int int_val;
+}
 
-%token	<int>	INTEGER_LITERAL
-%nterm <int> exp term factor
-%token PAR_BEGIN PAR_END
-%left	PLUS REST
-%left	MULT
+%start	programa 
+
+%token <int_val> NUM
+%token ID ENTERO SIN_TIPO RETORNO MIENTRAS SI SINO MAIN
+%token MUL_OP DIV_OP SUM_OP RES_OP ASSIGN  
+%token LT LEQ GT GEQ EQ NEQ
+%token par_begin par_end cor_begin cor_end bra_begin bra_end
+%token com d_com
+
 
 %%
 
-input:		/* empty */
-		| exp	{ *result = $1; }
+programa: lista_declaracion {*result = 666;}
 		;
 
-exp:  exp opsuma term { $$ = $1 + $3; }
-    | exp oprest term { $$ = $1 - $3; }
-    | term  { $$ = $1; }
+lista_declaracion:  
+    lista_declaracion declaracion {std::cout<<"Sth\n";}
+    | declaracion
     ;
 
-opsuma: PLUS
+declaracion: 
+    | ENTERO ID declaracion_fact
+    | SIN_TIPO ID par_begin params par_end bra_begin bra_end
     ;
 
-oprest: REST
-    ;
+declaracion_fact:
+    var_declaracion_fact
+    | par_begin params par_end bra_begin bra_end
 
-term: term opmult factor  { $$ = $1 * $3; }
-    | factor  { $$ = $1; }
-    ;
+var_declaracion_fact:
+    d_com
+    | cor_begin NUM cor_end d_com
 
-opmult: MULT
-    ;
+params:
+    /*empty*/
+    | lista_params
+;
 
-factor: PAR_BEGIN exp PAR_END { $$ = $2; }
-    | INTEGER_LITERAL 	{ $$ = $1; }
-    ;
+lista_params:
+    lista_params com param
+    | param
+;
+
+param:
+    tipo ID
+    | tipo ID cor_begin cor_end
+;
+
+tipo:
+    ENTERO
+    | SIN_TIPO
+;
+
 %%
 
 void utec::compilers::Parser::error(const std::string& msg) {

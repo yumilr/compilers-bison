@@ -21,9 +21,13 @@ TEST_P(ParamTest, basicTest) {
 }
 
 INSTANTIATE_TEST_SUITE_P(SimpleTest, ParamTest,
-                         testing::Values(std::make_pair("1+2+3", 6),
-                                         std::make_pair("4*(2+3)", 20),
-                                         std::make_pair("1*2*3", 6)));
+                         testing::Values(std::make_pair("entero a;", 666),
+                                         std::make_pair("entero a[5];", 666),
+                                         std::make_pair("sin_tipo a(){}", 666),
+                                         std::make_pair("sin_tipo a(entero o, entero m[]){}", 666),
+                                         std::make_pair("sin_tipo a(entero a){}", 666),
+                                         std::make_pair("sin_tipo a(entero a){}", 666),
+                                         std::make_pair("entero a(){}", 666)));
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
